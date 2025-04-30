@@ -2,8 +2,17 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
+interface CustomSession {
+    user?: {
+        id: string;
+        email?: string | null;
+        name?: string | null;
+        image?: string | null;
+    };
+}
+
 export default function GenerateWalletModal() {
-    const { data: session, status } = useSession();
+    const { data: session, status } = useSession() as { data: CustomSession | null, status: string };
     const [accountName, setAccountName] = useState('');
 
     useEffect(() => {
@@ -34,7 +43,7 @@ export default function GenerateWalletModal() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ 
-                    userID: session.user.email, 
+                    userID: session.user.id, 
                     accountName 
                 }),
             });

@@ -1,6 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
 import {connectDB} from "@/app/lib/mongodb";
-import WalletData from "@/app/models/user";
+import { WalletData } from "@/app/models/user";
 import {ethers} from "ethers";
 
 export async function POST(req:NextRequest){
@@ -9,14 +9,14 @@ export async function POST(req:NextRequest){
         
         if (!userID || !accountName) {
             return NextResponse.json(
-                { message: "Missing required fields" },
+                { message: "Missing required fields", details: { userID: !!userID, accountName: !!accountName } },
                 { status: 400 }
             );
         }
 
         await connectDB();
         const wallet=ethers.Wallet.createRandom();
-        const newWallet=new WalletData.WalletData({
+        const newWallet=new WalletData({
             userID,
             accountName,
             accountAddress:wallet.address,
@@ -31,8 +31,13 @@ export async function POST(req:NextRequest){
         );
     } catch (error) {
         console.error("Wallet creation error:", error);
+        // Return more detailed error information
         return NextResponse.json(
-            { message: "Failed to create wallet" },
+            { 
+                message: "Failed to create wallet",
+                error: error instanceof Error ? error.message : "Unknown error",
+                details: error instanceof Error ? error.stack : undefined
+            },
             { status: 500 }
         );
     }

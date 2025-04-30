@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { connectDB } from "@/app/lib/mongodb";
-import UserData from "@/app/models/user";
+import { UserData } from "@/app/models/user";
 import bcrypt from "bcryptjs";
 
 const handler = NextAuth({
@@ -18,7 +18,7 @@ const handler = NextAuth({
         }
 
         await connectDB();
-        const user = await UserData.UserData.findOne({ email: credentials.email });
+        const user = await UserData.findOne({ email: credentials.email });
 
         if (!user) {
           throw new Error("No user found");

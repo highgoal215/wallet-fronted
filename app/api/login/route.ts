@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
-import UserData from "@/app/models/user";
+import { UserData } from "@/app/models/user";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
@@ -11,9 +11,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Missing fields" }, { status: 400 });
     }
 
-    await connectDB();
+    // Ensure MongoDB is connected
+    try {
+      await connectDB();
+    } catch (error) {
+      return NextResponse.json(
+        { message: "Database connection failed" },
+        { status: 500 }
+      );
+    }
 
-    const existingUser = await UserData.UserData.findOne({ email });
+    // Verify UserData model is available
+    if (!UserData) {
+      return NextResponse.json(
+        { message: "Database model not initialized" },
+        { status: 500 }
+      );
+    }
+
+    const existingUser = await UserData.findOne({ email });
 
     if (!existingUser) {
       return NextResponse.json(
@@ -38,6 +54,9 @@ export async function POST(req: NextRequest) {
 
   } catch (error) {
     console.error("SignIn API error:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Server error", error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

@@ -31,7 +31,9 @@ export function Providers({ children, themeProps }: ProvidersProps) {
           {...themeProps}
           attribute="class"
           defaultTheme="light"
-          enableSystem
+          enableSystem={false}
+          disableTransitionOnChange
+          storageKey="theme"
         >
           {children}
         </NextThemesProvider>
